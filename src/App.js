@@ -1,4 +1,6 @@
-import React, { useState, useRef } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-undef */
+import React, { useState, useRef, useEffect } from 'react';
 import Barcode from 'react-barcode';
 import './App.css';
 import winfooz128 from './images/winfooz128.png';
@@ -10,6 +12,14 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [vin, setVin] = useState('');
   const inputRef = useRef(null);
+
+  useEffect(() => {
+    chrome.storage.sync.get('storageVin', ({ storageVin }) => {
+      if (storageVin) {
+        setVin(storageVin);
+      }
+    });
+  }, []);
 
   const copyVin = () => {
     inputRef.current.select();
@@ -25,6 +35,7 @@ function App() {
         setVin(vin);
         setIsLoading(false);
         copyVin();
+        chrome.storage.sync.set({ storageVin: vin });
       })
       .catch(console.error);
   };
@@ -39,7 +50,7 @@ function App() {
       </div>
       <div className="container-inner">
         <button className="action-button" onClick={() => getVin()}>
-          Generate & Copy Vin
+          <span>Generate & Copy</span>
         </button>
         <div className="controls-wrapper">
           <input value={vin} ref={inputRef} readOnly />
